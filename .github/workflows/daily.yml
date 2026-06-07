@@ -1,0 +1,44 @@
+name: Daily Activity
+
+on:
+  schedule:
+    # 3 раза в день в разное время — естественно
+    - cron: '0 7 * * *'   # 07:00 UTC
+    - cron: '0 14 * * *'  # 14:00 UTC
+    - cron: '0 21 * * *'  # 21:00 UTC
+  workflow_dispatch:  # ручной запуск
+
+jobs:
+  auto-commit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Random delay (15-120 min — естественно)
+        run: sleep $((RANDOM % 7200 + 900))
+      
+      - name: Make commit
+        run: |
+          # Апдейт README или log
+          if [ -f README.md ]; then
+            # Добавляем или обновляем секцию с датой
+            if grep -q "last-synced" README.md 2>/dev/null; then
+              sed -i "s/last-synced: .*/last-synced: $(date -u '+%Y-%m-%d %H:%M UTC')/" README.md
+            else
+              echo "" >> README.md
+              echo "---" >> README.md  
+              echo "last-synced: $(date -u '+%Y-%m-%d %H:%M UTC')" >> README.md
+            fi
+          fi
+          
+          # log
+          echo "$(date -u '+%Y-%m-%d %H:%M:%S UTC') — auto sync" >> .activity.log
+          
+          git config user.name "crypto-dev-bot"
+          git config user.email "crypto-dev-bot@users.noreply.github.com"
+          
+          git add -A
+          git diff --staged --quiet || git commit -m "chore: sync $(date -u '+%Y-%m-%d')"
+          git push
