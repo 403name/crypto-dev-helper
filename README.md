@@ -27,4 +27,4 @@ cp -r crypto-dev-helper/.cursor/skills/crypto-dev-helper .cursor/skills/
 Cursor and Claude Code automatically discover this skill when working with blockchain-related files.
 
 ---
-last-synced: 2026-11-05 22:08 UTC
+last-synced: 2026-11-06 03:20 UTC
